@@ -178,6 +178,9 @@ footer{
 </style>
 </head>
 
+```html
+<!-- SUBSTITUA APENAS A PARTE DO BODY PELO CÓDIGO ABAIXO -->
+
 <body>
 
 <header>
@@ -189,36 +192,36 @@ footer{
 <input type="text" class="search" placeholder="Pesquisar produtos...">
 
 <div class="icons">
-🛒
-👤
-❤
+<div>🛒 <span id="cartCount">0</span></div>
+<div>👤</div>
+<div>❤</div>
 </div>
 
 </div>
 
 <nav>
-<a href="#">Home</a>
-<a href="#">Categorias</a>
-<a href="#">Ofertas</a>
-<a href="#">Tecnologia</a>
-<a href="#">Contato</a>
+<a href="#home">Home</a>
+<a href="#categorias">Categorias</a>
+<a href="#" onclick="mostrarOfertas()">Ofertas</a>
+<a href="#" onclick="filtrarTecnologia()">Tecnologia</a>
+<a href="#contato">Contato</a>
 </nav>
 
 </header>
 
-<section class="hero">
+<section class="hero" id="home">
 <div class="hero-content">
 <h1>Compre com Segurança</h1>
 <p>Milhares de produtos com entrega rápida.</p>
-<a href="#" class="btn">Comprar Agora</a>
+<a href="#categorias" class="btn">Comprar Agora</a>
 </div>
 </section>
 
 <h2 class="section-title">Produtos em Destaque</h2>
 
-<section class="products">
+<section class="products" id="categorias">
 
-<div class="card">
+<div class="card produto" data-nome="tenis premium calcado">
 <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff">
 <div class="card-body">
 <h3>Tênis Premium</h3>
@@ -227,7 +230,7 @@ footer{
 </div>
 </div>
 
-<div class="card">
+<div class="card produto" data-nome="smartphone pro celular tecnologia">
 <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9">
 <div class="card-body">
 <h3>Smartphone Pro</h3>
@@ -236,7 +239,7 @@ footer{
 </div>
 </div>
 
-<div class="card">
+<div class="card produto" data-nome="headphone bluetooth tecnologia">
 <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e">
 <div class="card-body">
 <h3>Headphone Bluetooth</h3>
@@ -247,12 +250,78 @@ footer{
 
 </section>
 
-<footer>
+<footer id="contato">
 <h3>Prime Store</h3>
 <p>Pagamentos por PIX, Cartão e Boleto</p>
 <p>© 2026 Todos os direitos reservados</p>
 </footer>
 
+<script>
+
+// Carrinho
+
+let totalItens = 0;
+
+document.querySelectorAll(".buy").forEach(botao => {
+    botao.addEventListener("click", () => {
+        totalItens++;
+        document.getElementById("cartCount").innerText = totalItens;
+        alert("Produto adicionado ao carrinho!");
+    });
+});
+
+// Pesquisa
+
+const pesquisa = document.querySelector(".search");
+
+pesquisa.addEventListener("keyup", () => {
+
+    let texto = pesquisa.value.toLowerCase();
+
+    document.querySelectorAll(".produto").forEach(produto => {
+
+        let nome = produto.dataset.nome.toLowerCase();
+
+        if(nome.includes(texto)){
+            produto.style.display = "block";
+        }else{
+            produto.style.display = "none";
+        }
+
+    });
+
+});
+
+// Ofertas
+
+function mostrarOfertas(){
+    alert("🔥 Promoções especiais disponíveis!");
+}
+
+// Tecnologia
+
+function filtrarTecnologia(){
+
+    document.querySelectorAll(".produto").forEach(produto => {
+
+        let nome = produto.dataset.nome.toLowerCase();
+
+        if(
+            nome.includes("tecnologia") ||
+            nome.includes("celular") ||
+            nome.includes("smartphone") ||
+            nome.includes("headphone")
+        ){
+            produto.style.display = "block";
+        }else{
+            produto.style.display = "none";
+        }
+
+    });
+
+}
+
+</script>
+
 </body>
-</html>
 ```
