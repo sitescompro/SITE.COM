@@ -1,408 +1,481 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A Jornada de Nano Ali</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+        }
 
-<title>DjXandyBaile do X</title>
+        body {
+            background-color: #fce4ec;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 450px;
+            max-height: 850px;
+            background: linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
 
-<style>
+        #score-board {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #d81b60;
+            font-size: 1.1rem;
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-}
+        #game-canvas {
+            width: 100%;
+            flex-grow: 1;
+            background: transparent;
+            display: block;
+        }
 
-body{
-background:#000;
-color:#fff;
-}
+        /* Controles Touch */
+        #controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+        }
 
-/* MENU */
+        .dir-buttons {
+            display: flex;
+            gap: 15px;
+        }
 
-header{
-background:#111;
-position:fixed;
-top:0;
-width:100%;
-z-index:999;
-box-shadow:0 0 20px #000;
-}
+        .btn {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            border: none;
+            background-color: #ff4081;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 0 #c2185b, 0 6px 10px rgba(0,0,0,0.2);
+            active-transform: translateY(4px);
+            transition: transform 0.1s;
+        }
 
-nav{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:18px 8%;
-}
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #c2185b, 0 2px 5px rgba(0,0,0,0.2);
+        }
 
-.logo{
-font-size:28px;
-font-weight:bold;
-color:gold;
-}
+        #btn-jump {
+            background-color: #00e676;
+            box-shadow: 0 6px 0 #00c853, 0 6px 10px rgba(0,0,0,0.2);
+            width: 75px;
+            height: 75px;
+        }
 
-nav ul{
-display:flex;
-gap:25px;
-list-style:none;
-}
+        #btn-jump:active {
+            box-shadow: 0 2px 0 #00c853, 0 2px 5px rgba(0,0,0,0.2);
+        }
 
-nav ul li a{
-color:white;
-text-decoration:none;
-transition:.3s;
-}
+        /* Tela de Parabéns */
+        #victory-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(253, 228, 236, 0.95);
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+        }
 
-nav ul li a:hover{
-color:gold;
-}
+        .heart {
+            font-size: 4rem;
+            color: #ff4081;
+            display: inline-block;
+            animation: beat .25s infinite alternate;
+        }
 
-/* HERO */
+        .heart:nth-child(2) {
+            animation-delay: 0.25s;
+        }
 
-.hero{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-text-align:center;
-background:url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1400&q=80') center/cover;
-position:relative;
-}
+        @keyframes beat {
+            to { transform: scale(1.2); }
+        }
 
-.hero::before{
-content:"";
-position:absolute;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.70);
-}
+        #victory-screen h1 {
+            color: #d81b60;
+            margin: 20px 0;
+            font-size: 1.8rem;
+            line-height: 1.4;
+        }
 
-.hero-content{
-position:relative;
-z-index:2;
-padding:20px;
-}
-
-.hero h1{
-font-size:55px;
-color:gold;
-}
-
-.hero h2{
-font-size:30px;
-margin:20px 0;
-}
-
-.hero p{
-font-size:18px;
-margin-bottom:30px;
-}
-
-.btn{
-display:inline-block;
-padding:15px 35px;
-background:gold;
-color:#000;
-text-decoration:none;
-border-radius:40px;
-font-weight:bold;
-transition:.3s;
-}
-
-.btn:hover{
-background:white;
-}
-
-/* SERVIÇOS */
-
-section{
-padding:80px 8%;
-}
-
-.titulo{
-text-align:center;
-font-size:38px;
-color:gold;
-margin-bottom:50px;
-}
-
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:30px;
-}
-
-.card{
-background:#111;
-border-radius:15px;
-overflow:hidden;
-transition:.3s;
-}
-
-.card:hover{
-transform:translateY(-10px);
-}
-
-.card img{
-width:100%;
-height:220px;
-object-fit:cover;
-}
-
-.card h3{
-padding:15px;
-color:gold;
-}
-
-.card p{
-padding:0 15px 20px;
-}
-
-/* EQUIPAMENTOS */
-
-.equipamentos{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:25px;
-}
-
-.item{
-background:#111;
-padding:20px;
-border-radius:15px;
-text-align:center;
-}
-
-.item img{
-width:100%;
-height:200px;
-object-fit:cover;
-border-radius:10px;
-margin-bottom:15px;
-}
-
-.item h3{
-color:gold;
-margin-bottom:10px;
-}
-
-/* CONTATO */
-
-.contato{
-text-align:center;
-}
-
-.contato h2{
-font-size:40px;
-color:gold;
-margin-bottom:20px;
-}
-
-.whats{
-display:inline-block;
-padding:18px 40px;
-background:#25D366;
-color:white;
-text-decoration:none;
-font-size:20px;
-border-radius:40px;
-font-weight:bold;
-}
-
-/* RODAPÉ */
-
-footer{
-background:#111;
-padding:30px;
-text-align:center;
-margin-top:50px;
-}
-
-footer h3{
-color:gold;
-margin-bottom:10px;
-}
-
-footer p{
-margin:8px;
-}
-
-/* RESPONSIVO */
-
-@media(max-width:768px){
-
-.hero h1{
-font-size:38px;
-}
-
-.hero h2{
-font-size:22px;
-}
-
-nav{
-flex-direction:column;
-}
-
-nav ul{
-margin-top:15px;
-flex-wrap:wrap;
-justify-content:center;
-}
-
-}
-
-</style>
+        #btn-restart {
+            margin-top: 20px;
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: none;
+            background-color: #ff4081;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+    </style>
 </head>
-
 <body>
 
-<header>
+<div id="game-container">
+    <div id="score-board">Flores: <span id="score">0</span> / 10</div>
+    
+    <canvas id="game-canvas"></canvas>
 
-<nav>
+    <!-- Controles na Tela -->
+    <div id="controls">
+        <div class="dir-buttons">
+            <button class="btn" id="btn-left">◀</button>
+            <button class="btn" id="btn-right">▶</button>
+        </div>
+        <button class="btn" id="btn-jump">▲</button>
+    </div>
 
-<div class="logo">
-DjXandyBaile do X
+    <!-- Tela de Vitória -->
+    <div id="victory-screen">
+        <div>
+            <span class="heart">❤️</span>
+            <span class="heart">❤️</span>
+        </div>
+        <h1>Parabéns por ser uma pessoa tão incrível!</h1>
+        <button id="btn-restart" onclick="restartGame()">Jogar Novamente</button>
+    </div>
 </div>
 
-<ul>
-<li><a href="#inicio">Início</a></li>
-<li><a href="#servicos">Serviços</a></li>
-<li><a href="#equipamentos">Equipamentos</a></li>
-<li><a href="#contato">Contato</a></li>
-</ul>
-
-</nav>
-
-</header>
-
-<section class="hero" id="inicio">
-
-<div class="hero-content">
-
-<h1>CONTRATE O DJ XANDY</h1>
-
-<h2>Som • Iluminação • Estrutura Completa</h2>
-
-<p>Transformando qualquer evento em um verdadeiro espetáculo.</p>
-
-<a href="#contato" class="btn">Solicitar Orçamento</a>
-
-</div>
-
-</section>
-
-<section id="servicos">
-
-<h2 class="titulo">Nossos Serviços</h2>
-
-<div class="cards">
-
-<div class="card">
-
-<img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80">
-
-<h3>DJ Profissional</h3>
-
-<p>Repertório atualizado para festas, casamentos, aniversários, paredões e eventos em geral.</p>
-
-</div>
-
-<div class="card">
-
-<img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80">
-
-<h3>Iluminação</h3>
-
-<p>Moving Heads, Strobo, Laser, Canhão LED, Máquina de Fumaça e muito mais.</p>
-
-</div>
-
-<div class="card">
-
-<img src="https://images.unsplash.com/photo-1516280030429-27679b3dc9cf?auto=format&fit=crop&w=900&q=80">
-
-<h3>Estrutura de Som</h3>
-
-<p>Caixas profissionais, graves potentes, mesa digital e qualidade de áudio.</p>
-
-</div>
-
-</div>
-
-</section>
-
-<section id="equipamentos">
-
-<h2 class="titulo">Equipamentos</h2>
-
-<div class="equipamentos">
-
-<div class="item">
-
-<img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=80">
-
-<h3>Controladora DJ</h3>
-
-</div>
-
-<div class="item">
-
-<img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=900&q=80">
-
-<h3>Caixas Line Array</h3>
-
-</div>
-
-<div class="item">
-
-<img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=900&q=80">
-
-<h3>Iluminação LED</h3>
-
-</div>
-
-<div class="item">
-
-<img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=900&q=80">
-
-<h3>Mesa de Som</h3>
-
-</div>
-
-</div>
-
-</section>
-
-<section class="contato" id="contato">
-
-<h2>Contrate o DJ Xandy</h2>
-
-<p>Faça seu orçamento pelo WhatsApp.</p>
-
-<br>
-
-<a class="whats" href="https://wa.me/5583999999999" target="_blank">
-📲 Chamar no WhatsApp
-</a>
-
-</section>
-
-<footer>
-
-<h3>DjXandyBaile do X</h3>
-
-<p>DJ • Estrutura de Som • Iluminação Profissional</p>
-
-<p>Atendemos festas, aniversários, casamentos, eventos corporativos e shows.</p>
-
-<p>© 2026 - Todos os direitos reservados.</p>
-
-</footer>
-
+<script>
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const victoryScreen = document.getElementById('victory-screen');
+
+    // Ajustar tamanho do canvas
+    function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+    }
+
+    // Estado do Jogo
+    let score = 0;
+    let gameOver = false;
+
+    // Física e Personagem
+    const player = {
+        x: 50,
+        y: 200,
+        width: 35,
+        height: 35,
+        speedX: 0,
+        speedY: 0,
+        color: '#ff80ab',
+        grounded: false,
+        speed: 4.5,
+        jumpForce: 10
+    };
+
+    const gravity = 0.45;
+    let flowers = [];
+    let platforms = [];
+
+    // Controles Touch Ativos
+    let keys = {
+        left: false,
+        right: false
+    };
+
+    // Configuração dos Botões
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnJump = document.getElementById('btn-jump');
+
+    // Suporte para Touch (Dispositivos Móveis)
+    btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); keys.left = true; });
+    btnLeft.addEventListener('touchend', (e) => { e.preventDefault(); keys.left = false; });
+    
+    btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); keys.right = true; });
+    btnRight.addEventListener('touchend', (e) => { e.preventDefault(); keys.right = false; });
+
+    btnJump.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (player.grounded) {
+            player.speedY = -player.jumpForce;
+            player.grounded = false;
+        }
+    });
+
+    // Suporte alternativo para cliques de mouse e teclado (útil para testes no PC)
+    btnLeft.addEventListener('mousedown', () => keys.left = true);
+    btnLeft.addEventListener('mouseup', () => keys.left = false);
+    btnRight.addEventListener('mousedown', () => keys.right = true);
+    btnRight.addEventListener('mouseup', () => keys.right = false);
+    btnJump.addEventListener('mousedown', () => {
+        if (player.grounded) {
+            player.speedY = -player.jumpForce;
+            player.grounded = false;
+        }
+    });
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+        if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+        if ((e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') && player.grounded) {
+            player.speedY = -player.jumpForce;
+            player.grounded = false;
+        }
+    });
+
+    window.addEventListener('keyup', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+        if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+    });
+
+    // Inicializar plataformas
+    function initMap() {
+        platforms = [
+            // Chão básico
+            { x: 0, y: canvas.height - 40, width: canvas.width, height: 40 },
+            // Plataformas flutuantes
+            { x: 40, y: canvas.height - 130, width: 100, height: 15 },
+            { x: 180, y: canvas.height - 210, width: 120, height: 15 },
+            { x: 60, y: canvas.height - 290, width: 100, height: 15 },
+            { x: 220, y: canvas.height - 370, width: 110, height: 15 },
+        ];
+    }
+
+    // Criar uma nova flor em posição aleatória em cima de alguma plataforma
+    function spawnFlower() {
+        if (flowers.length >= 3 || score + flowers.length >= 10) return;
+
+        const platform = platforms[Math.floor(Math.random() * platforms.length)];
+        const flowerX = platform.x + Math.random() * (platform.width - 20);
+        const flowerY = platform.y - 25;
+
+        // Evitar que surja muito perto de outra flor existente
+        const tooClose = flowers.some(f => Math.abs(f.x - flowerX) < 30 && Math.abs(f.y - flowerY) < 30);
+        if (!tooClose) {
+            flowers.push({ x: flowerX, y: flowerY, radius: 10 });
+        }
+    }
+
+    // Desenhar a Personagem (Nano Ali)
+    function drawPlayer() {
+        // Corpo/Cabecinha rosa fofa
+        ctx.fillStyle = player.color;
+        ctx.beginPath();
+        ctx.arc(player.x + player.width / 2, player.y + player.height / 2, player.width / 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rostinho (Olhos)
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(player.x + 12, player.y + 12, 4, 0, Math.PI * 2);
+        ctx.arc(player.x + 23, player.y + 12, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.arc(player.x + 12, player.y + 12, 2, 0, Math.PI * 2);
+        ctx.arc(player.x + 23, player.y + 12, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sorriso fofo
+        ctx.strokeStyle = '#e91e63';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(player.x + 17.5, player.y + 18, 5, 0, Math.PI);
+        ctx.stroke();
+
+        // Um lacinho de cabelo fofo
+        ctx.fillStyle = '#e91e63';
+        ctx.beginPath();
+        ctx.arc(player.x + 8, player.y + 4, 4, 0, Math.PI * 2);
+        ctx.arc(player.x + 16, player.y + 4, 4, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Desenhar Flores
+    function drawFlower(f) {
+        ctx.save();
+        ctx.translate(f.x + 10, f.y + 10);
+        
+        // Miolo amarelo
+        ctx.fillStyle = '#ffeb3b';
+        ctx.beginPath();
+        ctx.arc(0, 0, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pétalas Brancas/Amarelas
+        ctx.fillStyle = '#ffffff';
+        for (let i = 0; i < 5; i++) {
+            ctx.beginPath();
+            ctx.arc(Math.cos(i * 1.25) * 6, Math.sin(i * 1.25) * 6, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    // Desenhar Plataformas
+    function drawPlatforms() {
+        ctx.fillStyle = '#81c784'; // Grama suave
+        platforms.forEach(p => {
+            ctx.beginPath();
+            ctx.roundRect(p.x, p.y, p.width, p.height, 5);
+            ctx.fill();
+        });
+    }
+
+    // Lógica e Loop Principal
+    function update() {
+        if (gameOver) return;
+
+        // Movimentação Horizontal
+        if (keys.left) {
+            player.speedX = -player.speed;
+        } else if (keys.right) {
+            player.speedX = player.speed;
+        } else {
+            player.speedX = 0;
+        }
+
+        player.x += player.speedX;
+        
+        // Aplicar Gravidade
+        player.speedY += gravity;
+        player.y += player.speedY;
+
+        // Limites da Tela Lateral
+        if (player.x < 0) player.x = 0;
+        if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+        // Colisão com as Plataformas (foco no topo delas)
+        player.grounded = false;
+        platforms.forEach(p => {
+            if (player.x + player.width > p.x && 
+                player.x < p.x + p.width && 
+                player.y + player.height >= p.y && 
+                player.y + player.height - player.speedY <= p.y + 10) {
+                
+                player.y = p.y - player.height;
+                player.speedY = 0;
+                player.grounded = true;
+            }
+        });
+
+        // Caso caia fora (ajuda pro jogador não sumir no abismo)
+        if (player.y > canvas.height) {
+            player.x = 50;
+            player.y = 100;
+            player.speedY = 0;
+        }
+
+        // Colisão com as Flores (Coleta)
+        flowers.forEach((flower, index) => {
+            const dist = Math.hypot((player.x + player.width/2) - (flower.x + 10), (player.y + player.height/2) - (flower.y + 10));
+            if (dist < 25) {
+                flowers.splice(index, 1);
+                score++;
+                scoreEl.textContent = score;
+
+                if (score >= 10) {
+                    winGame();
+                }
+            }
+        });
+
+        // Gerar novas flores ao longo do tempo
+        if (Math.random() < 0.02) {
+            spawnFlower();
+        }
+
+        // Limpar e Desenhar
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawPlatforms();
+        flowers.forEach(drawFlower);
+        drawPlayer();
+
+        requestAnimationFrame(update);
+    }
+
+    function winGame() {
+        gameOver = true;
+        victoryScreen.style.display = 'flex';
+    }
+
+    function restartGame() {
+        score = 0;
+        scoreEl.textContent = score;
+        flowers = [];
+        player.x = 50;
+        player.y = 100;
+        player.speedX = 0;
+        player.speedY = 0;
+        gameOver = false;
+        victoryScreen.style.display = 'none';
+        update();
+    }
+
+    // Inicialização
+    window.addEventListener('load', () => {
+        resizeCanvas();
+        initMap();
+        // Spawna algumas flores de início
+        for (let i = 0; i < 3; i++) {
+            spawnFlower();
+        }
+        update();
+    });
+
+    window.addEventListener('resize', () => {
+        resizeCanvas();
+        initMap();
+    });
+</script>
 </body>
 </html>
